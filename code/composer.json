@@ -1,0 +1,10 @@
+{
+    "name": "stream/testtask",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Stream\\Testtask\\": "src/"
+        }
+    },
+    "require": {}
+}
