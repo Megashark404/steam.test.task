@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: stream/nginx
+    container_name: stream_webserver
+    ports:
+      - "80:80"
+    volumes:
+       - ./code:/data/mysite.local
+       - ./socket:/var/run/
+    networks:
+      - app-network
+
+  php-fpm:
+    build:
+      context: ./fpm
+      dockerfile: Dockerfile
+    image: stream/php
+    container_name: stream_php
+    volumes:
+       - ./code:/data/mysite.local
+       - ./socket:/var/run/
+    networks:
+      - app-network
+
+  db:
+    container_name: stream_db
+    image: mariadb
+    command: ['--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci']
+    restart: always
+    networks:
+      - app-network
+    expose:
+      - 3306
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: stream_db
+      MYSQL_USER: stream_user
+      MYSQL_PASSWORD: stream4321
+      MYSQL_ROOT_PASSWORD: stream1234
+    volumes:
+      - ./database:/var/lib/mysql
+
+networks:
+  app-network:
+    driver: bridge
