@@ -5,6 +5,7 @@ namespace Stream\Testtask\Controllers;
 use Stream\Testtask\Connector;
 use Stream\Testtask\models\Book;
 use Stream\Testtask\models\Copy;
+use Stream\Testtask\models\Reader;
 
 class CopyController
 {
@@ -30,8 +31,8 @@ class CopyController
             case "update" :
                 $this->actionUpdate();
                 break;
-            case "delete" :
-                $this->actionDelete();
+            case "borrow" :
+                $this->actionBorrow();
                 break;
             default:
                 $this->actionIndex();
@@ -59,7 +60,8 @@ class CopyController
             $copy->setSerial($_POST["serial"]);
             $copy->setBookId($_POST["book_id"]);
             $copy->setComment($_POST["comment"]);
-            $copy->setActive(1);
+            $copy->setActive(Copy::ACTIVE);
+            $copy->setBorrowStatus(Copy::STATUS_STOCK);
             $copy->save();
             header('Location: index.php?controller=copies&book_id=' . $_POST["book_id"]);
         }
@@ -82,6 +84,7 @@ class CopyController
         else if (isset($_POST["id"]) && isset($_POST["active"]) && isset($_POST["comment"])) {
             $copy = Copy::findOne($this->connection, $_POST['id']);
             $copy->setActive($_POST["active"]);
+            $copy->setBorrowStatus($_POST['borrow_status']);
             $copy->setSerial($_POST["serial"]);
             $copy->setComment($_POST["comment"]);
             $copy->update();
@@ -92,11 +95,21 @@ class CopyController
 
      public function actionBorrow()
      {
-         if (isset($_GET['id'])) {
+         if (isset($_GET['id']) and !isset($_POST['id'])) {
              $copy = Copy::findOne($this->connection, $_GET['id']);
+             $book = Book::findOne($this->connection, $copy->getBookId());
+             $readers = Reader::findAll($this->connection);
+
              $this->render("borrow", array(
                  'copy' => $copy,
+                 'book' => $book,
+                 'readers' => $readers
              ));
+         } else if (isset($_POST["id"]) && isset($_POST["reader_id"]) && isset($_POST['due_date'])) {
+             $copy = Copy::findOne($this->connection, $_POST['id']);
+             $reader = Reader::findOne($this->connection, $_POST['reader_id']);
+             $copy->borrowTo($reader, $_POST['due_date']);
+             header('Location: index.php?controller=copies&action=index&book_id=' . $copy->getBookId());
          }
      }
 

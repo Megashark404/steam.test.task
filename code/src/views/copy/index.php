@@ -35,10 +35,11 @@
         <section class="pr-2" style="height:400px;overflow-y:scroll;">
             <?php foreach($this->data["copies"] as $copy) {?>
                 <b>Инвентарный номер:</b> <?php echo $copy->getSerial(); ?>.
-                <b>Статус:</b> <?php echo $copy->isActive() ? 'На балансе' : 'Списан'; ?>.
+                <b>Статус:</b> <?php echo $copy->isActive() ? 'Не списан' : 'Списан'; ?>.
+                <b>Выдача:</b> <?php echo $copy->isBorrowed() ? 'Выдан читателю' : 'В библиотеке'; ?>.
                 <b>Комментарий:</b> <?php echo $copy->getComment(); ?>.
                 <div class="right">
-                    <a href="index.php?controller=copies&action=borrow&id=<?php echo $copy->getId(); ?>" class="btn btn-success">Выдать читателю</a>
+                    <a href="index.php?controller=copies&action=borrow&id=<?php echo $copy->getId(); ?>" class="btn btn-success <?php echo $copy->isBorrowed() ? 'disabled' : ''?>">Выдать читателю</a>
                     <a href="index.php?controller=copies&action=update&id=<?php echo $copy->getId(); ?>" class="btn btn-info">Редактировать</a>
                 </div>
                 <hr/>

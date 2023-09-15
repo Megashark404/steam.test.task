@@ -24,9 +24,14 @@
         <input type="hidden" name="id" value="<?php echo $this->data["copy"]->getId() ?>"/>
         Инвентарный номер: <input type="text" required name="serial" value="<?php echo $this->data["copy"]->getSerial() ?>" class="form-control"/>
         Комментарий: <input type="text" name="comment" value="<?php echo $this->data['copy']->getComment() ?>" class="form-control"/>
-        Статус <small>(измените статус, чтобы списать)</small>:
-        <select name="active" required class="custom-select" id="inputGroupSelect01">
-            <option <?php echo $this->data['copy']->isActive() ? 'selected' : ''?> value="1">В наличии</option>
+        Статус выдачи <small>(измените статус, чтобы списать)</small>:
+        <select name="borrow_status" required class="custom-select">
+            <option <?php echo $this->data['copy']->isBorrowed() ? 'selected' : ''?> value="1">Выдан читателю</option>
+            <option <?php echo $this->data['copy']->isBorrowed() ? '' : 'selected'?> value="0">Доступен для выдачи</option>
+        </select>
+        Списан <small>(измените статус, чтобы списать)</small>:
+        <select name="active" required class="custom-select">
+            <option <?php echo $this->data['copy']->isActive() ? 'selected' : ''?> value="1">Не списан</option>
             <option <?php echo $this->data['copy']->isActive() ? '' : 'selected'?> value="0">Списан</option>
         </select>
         <input type="submit" value="Сохранить" class="btn btn-success"/>

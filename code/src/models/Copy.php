@@ -11,11 +11,16 @@ class Copy
     protected $bookId;
     protected $active;
     protected $comment;
+    protected $borrowStatus;
 
     private ?PDO $connection;
 
     const TABLE = 'book_copies';
-    const USERS_CROSS_TABLE = 'copies_readers';
+    const READERS_CROSS_TABLE = 'book_copies_readers';
+    const STATUS_STOCK = 0;    // в наличии в библиотеке
+    const STATUS_BORROWED = 1; // выдан читателю
+    const DISPOSED = 0; // списан
+    const ACTIVE = 1; // не списан
 
     public function __construct(PDO $connection)
     {
@@ -25,13 +30,14 @@ class Copy
     public function save()
     {
         $expr = $this->connection->prepare("
-            INSERT INTO " . self::TABLE . " (serial,active,comment,book_id) 
-            VALUES (:serial,:active,:comment,:book_id)
+            INSERT INTO " . self::TABLE . " (serial,active,comment,borrow_status,book_id) 
+            VALUES (:serial,:active,:comment,:borrow_status,:book_id)
         ");
         $result = $expr->execute(array(
             'serial' => $this->serial,
             'active' => $this->active,
             'comment' => $this->comment,
+            'borrow_status' => $this->borrowStatus,
             'book_id' => $this->bookId,
         ));
         $this->connection = null;
@@ -46,7 +52,8 @@ class Copy
             SET 
                 serial = :serial,
                 active = :active, 
-                comment = :comment
+                comment = :comment,
+                borrow_status = :borrow_status
             WHERE id = :id 
         ");
 
@@ -55,6 +62,7 @@ class Copy
             "serial" => $this->serial,
             "active" => $this->active,
             "comment" => $this->comment,
+            'borrow_status' => $this->borrowStatus
         ));
 
         $this->connection = null;
@@ -93,11 +101,30 @@ class Copy
             ->setId($data['id'])
             ->setBookId($data['book_id'])
             ->setComment($data['comment'])
-            ->setActive($data['active']);
+            ->setActive($data['active'])
+            ->setBorrowStatus($data['borrow_status']);
 
         $connection = null;
         return $copy;
     }
+
+    public function borrowTo(Reader $reader, string $dueDate)
+    {
+        $expr = $this->connection->prepare("
+            INSERT INTO " . self::READERS_CROSS_TABLE . " (book_copy_id,reader_id, due_date) 
+            VALUES (:book_copy_id,:reader_id, :due_date)
+        ");
+
+        $result = $expr->execute(array(
+            "book_copy_id" => $this->id,
+            "reader_id" => $reader->getId(),
+            'due_date' => $dueDate,
+        ));
+
+        $this->setBorrowStatus(self::STATUS_BORROWED);
+        $this->update();
+    }
+
 
 //    public function dispose()
 //    {
@@ -142,6 +169,11 @@ class Copy
     {
         return $this->active;
     }
+
+    public function isBorrowed()
+    {
+        return $this->borrowStatus;
+    }
     /*
      * setters
      */
@@ -172,6 +204,12 @@ class Copy
     public function setActive($active)
     {
         $this->active = $active;
+        return $this;
+    }
+
+    public function setBorrowStatus($status)
+    {
+        $this->borrowStatus = $status;
         return $this;
     }
 }
