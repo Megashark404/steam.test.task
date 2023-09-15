@@ -3,6 +3,7 @@ require_once '../vendor/autoload.php';
 
 use Stream\Testtask\controllers\AuthorController;
 use Stream\Testtask\controllers\BookController;
+use Stream\Testtask\controllers\CopyController;
 
 if (isset($_GET["controller"])) {
     $controller=getController($_GET["controller"]);
@@ -19,6 +20,9 @@ function getController($controller){
             break;
         case 'authors':
             $controllerObj=new AuthorController();
+            break;
+        case 'copies':
+            $controllerObj=new CopyController();
             break;
     }
     return $controllerObj;

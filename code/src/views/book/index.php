@@ -22,7 +22,7 @@
 <div class="row">
     <div class="col-8">
         <div class="">
-            <h3>Книги</h3>
+            <h3>Все книги</h3>
             <hr/>
         </div>
         <?php
@@ -35,7 +35,7 @@
                 <?php echo $book->getYear(); ?>.
                 (ISBN: <?php echo $book->getIsbn(); ?>)
                 <div class="right">
-                    <a href="index.php?controller=books&action=borrow&id=<?php echo $book->getId(); ?>" class="btn btn-success">Выдать</a>
+                    <a href="index.php?controller=copies&action=index&book_id=<?php echo $book->getId(); ?>" class="btn btn-success">Выдать</a>
                     <a href="index.php?controller=books&action=update&id=<?php echo $book->getId(); ?>" class="btn btn-info">Редактировать</a>
                     <a href="index.php?controller=books&action=delete&id=<?php echo $book->getId(); ?>" class="btn btn-info">Удалить</a>
                 </div>
