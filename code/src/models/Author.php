@@ -55,6 +55,7 @@ class Author
 
     public static function findAll(PDO $connection): array
     {
+        $authors = [];
         $expr = $connection->prepare("SELECT * FROM " . self::TABLE);
         $expr->execute();
         $result = $expr->fetchAll();
