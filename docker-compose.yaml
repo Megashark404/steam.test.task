@@ -45,6 +45,7 @@ services:
       MYSQL_ROOT_PASSWORD: stream1234
     volumes:
       - ./database:/var/lib/mysql
+      - ./sqldump/stream_db.sql:/docker-entrypoint-initdb.d/stream_db.sql
 
 networks:
   app-network:
